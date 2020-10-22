@@ -1,0 +1,58 @@
+course_info:
+  name: delta-lake-hands-on
+  version: 1.0.0
+  type: ILT
+
+bdc_min_version: "1.24"
+master_parse_min_version: "1.18"
+top_dbc_folder_name: $course_id
+src_base: .
+keep_lab_dirs: true
+
+notebook_defaults:
+  dest: $target_lang/$notebook_type/$basename.$target_extension
+  master:
+    enabled: true
+    scala: false
+    python: true
+    answers: true
+    instructor: true
+    enable_templates: false
+    heading:
+      enabled: true
+    footer:
+      enabled: true
+
+misc_files:
+  - src: CHANGELOG.md
+    dest: ""
+
+notebook_type_name:
+  answers: solutions
+  instructor: ''
+  exercises: ''
+
+notebooks:
+  - src: 00_ingest_raw.py
+  - src: 01_the_big_picture.py
+  - src: 02_review_and_visualize.py
+  - src: 03_creating_the_delta_table.py
+  - src: 04_batch_write_to_delta_tables.py
+  - src: 05_exploring_the_ssot.py
+  - src: 06_upsert_into_a_delta_table.py
+  - src: 07_delete_a_users_records.py
+  - src: 08_summary_and_next_steps.py
+  - src: includes/configuration.py
+    dest: $target_lang/$notebook_type/includes/$basename.$target_extension
+    master:
+      heading:
+        enabled: false
+      footer:
+        enabled: false
+  - src: includes/utilities.py
+    dest: $target_lang/$notebook_type/includes/$basename.$target_extension
+    master:
+      heading:
+        enabled: false
+      footer:
+        enabled: false

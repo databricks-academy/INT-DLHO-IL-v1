@@ -1,0 +1,9 @@
+source ~/.zshrc
+# TODO: run the script to build the test zip
+bdc build.yaml -o
+cp /Users/kevin.coyle/tmp/curriculum/delta-lake-hands-on-1.0.0/StudentFiles/Labs.dbc .
+mv /Users/kevin.coyle/tmp/curriculum/delta-lake-hands-on-1.0.0/StudentFiles/Labs.dbc \
+  /Users/kevin.coyle/tmp/curriculum/delta-lake-hands-on-1.0.0/Lessons.dbc
+databricks workspace delete /Users/kevin.coyle@databricks.com/delta-lake-hands-on -r
+databricks workspace import Labs.dbc /Users/kevin.coyle@databricks.com/delta-lake-hands-on -f DBC -l PYTHON
+rm Labs.dbc
