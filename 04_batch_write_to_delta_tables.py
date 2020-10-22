@@ -13,6 +13,26 @@
 
 # COMMAND ----------
 
+# MAGIC %md ## Notebook Configuration
+# MAGIC
+# MAGIC Before you run this cell, make sure to add a unique user name to the file
+# MAGIC `includes/configuration`, e.g.
+# MAGIC
+# MAGIC ```
+# MAGIC username = "yourfirstname_yourlastname"
+# MAGIC ```
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %run ./includes/configuration
+
+# COMMAND ----------
+
+# MAGIC %run ./includes/main/python/operations
+
+# COMMAND ----------
+
 file_path = health_tracker + "raw/health_tracker_data_2020_2.json"
 
 health_tracker_data_2020_2_df = (
@@ -33,7 +53,7 @@ health_tracker_data_2020_2_df = (
 
 # COMMAND ----------
 
-processedDF = process_health_tracker_data(health_tracker_data_2020_2_df)
+processedDF = process_health_tracker_data(spark, health_tracker_data_2020_2_df)
 
 # COMMAND ----------
 
@@ -82,4 +102,7 @@ processedDF = process_health_tracker_data(health_tracker_data_2020_2_df)
 
 # COMMAND ----------
 
-health_tracker_processed.count()
+(spark.read
+ .format("delta")
+ .load(health_tracker + "processed")
+ .count())

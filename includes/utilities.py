@@ -3,7 +3,7 @@ from pyspark.sql.session import SparkSession
 from urllib.request import urlretrieve
 import time
 
-BASE_URL = "https://files.training.databricks.com/static/data/health-tracker/"
+BASE_URL = "https://hadoop-and-big-data.s3-us-west-2.amazonaws.com/fitness-tracker/"
 
 
 def retrieve_data(year: int, month: int, raw_path: str, is_late: bool = False) -> bool:

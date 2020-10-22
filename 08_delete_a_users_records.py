@@ -8,6 +8,22 @@
 
 # COMMAND ----------
 
+# MAGIC %md ## Notebook Configuration
+# MAGIC
+# MAGIC Before you run this cell, make sure to add a unique user name to the file
+# MAGIC `includes/configuration`, e.g.
+# MAGIC
+# MAGIC ```
+# MAGIC username = "yourfirstname_yourlastname"
+# MAGIC ```
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %run ./includes/configuration
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC #### Step 1: Delete all records for the device 4
@@ -16,6 +32,9 @@
 
 # COMMAND ----------
 
+from delta.tables import DeltaTable
+
+processedDeltaTable = DeltaTable.forPath(spark, health_tracker + "processed")
 processedDeltaTable.delete("p_device_id = 4")
 
 # COMMAND ----------
@@ -34,12 +53,11 @@ processedDeltaTable.delete("p_device_id = 4")
 
 # COMMAND ----------
 
-
 from pyspark.sql.functions import lit
 
 upsertsDF = (
   spark.read
-  .option("versionAsOf", 4)
+  .option("versionAsOf", 3)
   .format("delta")
   .load(health_tracker + "processed")
   .where("p_device_id = 4")
@@ -57,8 +75,12 @@ upsertsDF = (
 
 # COMMAND ----------
 
-
 processedDeltaTable = DeltaTable.forPath(spark, health_tracker + "processed")
+
+update_match = """health_tracker.time = upserts.time
+                  AND
+                  health_tracker.p_device_id = upserts.p_device_id"""
+update = {"heartrate" : "upserts.heartrate"}
 
 insert = {
       "p_device_id" : "upserts.p_device_id",
@@ -85,7 +107,12 @@ insert = {
 
 # COMMAND ----------
 
-health_tracker_processed.count()
+(
+  spark.read
+  .format("delta")
+  .load(health_tracker + "processed")
+  .count()
+)
 
 # COMMAND ----------
 
@@ -96,8 +123,12 @@ health_tracker_processed.count()
 
 # COMMAND ----------
 
-
-display(health_tracker_processed.where("p_device_id = 4"))
+display(
+  spark.read
+  .format("delta")
+  .load(health_tracker + "processed")
+  .where("p_device_id = 4")
+)
 
 # COMMAND ----------
 
@@ -116,7 +147,7 @@ display(health_tracker_processed.where("p_device_id = 4"))
 
 display(
   spark.read
-  .option("versionAsOf", 4)
+  .option("versionAsOf", 2)
   .format("delta")
   .load(health_tracker + "processed")
   .where("p_device_id = 4")
@@ -131,7 +162,12 @@ display(
 
 # COMMAND ----------
 
-processedDeltaTable.vacuum(0)
+from pyspark.sql.utils import IllegalArgumentException
+
+try:
+  processedDeltaTable.vacuum(0)
+except IllegalArgumentException as error:
+  print(error)
 
 # COMMAND ----------
 

@@ -13,17 +13,7 @@ username = "dbacademy"
 
 # COMMAND ----------
 
-plusPipelinePath = f"/dbacademy/{username}/dataengineering/plus/"
-
-rawPath = plusPipelinePath + "raw/"
-bronzePath = plusPipelinePath + "bronze/"
-silverPath = plusPipelinePath + "silver/"
-goldPath = plusPipelinePath + "gold/"
-
-checkpointPath = plusPipelinePath + "checkpoints/"
-bronzeCheckpoint = checkpointPath + "bronze/"
-silverCheckpoint = checkpointPath + "silver/"
-goldCheckpoint = checkpointPath + "gold/"
+health_tracker = f"/dbacademy/{username}/delta-lake-hands-on/health-tracker/"
 
 # COMMAND ----------
 
@@ -41,12 +31,3 @@ spark.sql(f"USE dbacademy_{username}")
 # COMMAND ----------
 
 # MAGIC %run ./utilities
-
-# COMMAND ----------
-
-streams_stopped = stop_all_streams()
-
-if streams_stopped:
-    print("All streams stopped.")
-else:
-    print("No running streams.")

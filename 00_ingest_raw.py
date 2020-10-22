@@ -13,7 +13,7 @@
 
 # COMMAND ----------
 
-# MAGIC %md ## Step Configuration
+# MAGIC %md ## Notebook Configuration
 # MAGIC
 # MAGIC Before you run this cell, make sure to add a unique user name to the file
 # MAGIC `includes/configuration`, e.g.
@@ -29,17 +29,27 @@
 
 # COMMAND ----------
 
-# MAGIC %md ## Make Notebook Idempotent
+# MAGIC %md ## Make Course Idempotent
 
 # COMMAND ----------
 
-dbutils.fs.rm(rawPath, recurse=True)
+dbutils.fs.rm(health_tracker, recurse=True)
+
+spark.sql(f"""
+DROP TABLE IF EXISTS health_tracker_processed
+""")
+
+spark.sql(f"""
+DROP TABLE IF EXISTS health_tracker_gold_aggregate_heartrate
+""")
 
 # COMMAND ----------
 
 # MAGIC %md ## Retrieve First Month of Data
 # MAGIC
-# MAGIC Next, we use the utility function, `retrieve_data` to retrieve the first file we will ingest. The function takes three arguments:
+# MAGIC Next, we use the utility function, `retrieve_data` to
+# MAGIC retrieve the files we will ingest. The function takes
+# MAGIC three arguments:
 # MAGIC
 # MAGIC - `year: int`
 # MAGIC - `month: int`
@@ -48,7 +58,10 @@ dbutils.fs.rm(rawPath, recurse=True)
 
 # COMMAND ----------
 
-retrieve_data(2020, 1, rawPath)
+retrieve_data(2020, 1, health_tracker + "raw/")
+retrieve_data(2020, 2, health_tracker + "raw/")
+retrieve_data(2020, 2, health_tracker + "raw/", is_late=True)
+retrieve_data(2020, 3, health_tracker + "raw/")
 
 # COMMAND ----------
 
@@ -66,7 +79,7 @@ file_2020_1 = "health_tracker_data_2020_1.json"
 
 # COMMAND ----------
 
-display(dbutils.fs.ls(rawPath))
+display(dbutils.fs.ls(health_tracker + "raw/"))
 
 # COMMAND ----------
 
@@ -84,13 +97,6 @@ display(dbutils.fs.ls(rawPath))
 
 # ANSWER
 assert file_2020_1 in [
-    item.name for item in dbutils.fs.ls(rawPath)
+    item.name for item in dbutils.fs.ls(health_tracker + "raw/")
 ], "File not present in Raw Path"
 print("Assertion passed.")
-
-# COMMAND ----------
-
-# SOURCE_ONLY
-from datetime import datetime
-
-print(f"Notebook executed: {datetime.now()}")

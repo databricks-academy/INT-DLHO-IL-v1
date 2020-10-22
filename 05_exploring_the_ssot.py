@@ -8,6 +8,22 @@
 
 # COMMAND ----------
 
+# MAGIC %md ## Notebook Configuration
+# MAGIC
+# MAGIC Before you run this cell, make sure to add a unique user name to the file
+# MAGIC `includes/configuration`, e.g.
+# MAGIC
+# MAGIC ```
+# MAGIC username = "yourfirstname_yourlastname"
+# MAGIC ```
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %run ./includes/configuration
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC #### Step 1: Count the Number of Records Per Device
@@ -35,6 +51,8 @@ display(
 
 # COMMAND ----------
 
+from pyspark.sql.functions import col
+
 display(
   spark.read
   .format("delta")
@@ -47,7 +65,7 @@ display(
 # MAGIC %md
 # MAGIC
 # MAGIC ### Configuring the Visualization
-# MAGIC Note that we have used a Databricks visualization to view the sensor counts by day.
+# MAGIC Create a Databricks visualization to view the sensor counts by day.
 # MAGIC We have used the following options to configure the visualization:
 # MAGIC ```
 # MAGIC Keys: dte
@@ -75,7 +93,9 @@ display(
 # COMMAND ----------
 
 broken_readings = (
-  health_tracker_processed
+  spark.read
+  .format("delta")
+  .load(health_tracker + "processed")
   .select(col("heartrate"), col("dte"))
   .where(col("heartrate") < 0)
   .groupby("dte")
@@ -83,6 +103,7 @@ broken_readings = (
   .orderBy("dte")
 )
 broken_readings.createOrReplaceTempView("broken_readings")
+
 # COMMAND ----------
 
 # MAGIC %md
@@ -94,7 +115,8 @@ broken_readings.createOrReplaceTempView("broken_readings")
 # COMMAND ----------
 
 # MAGIC %sql
-SELECT * FROM broken_readings
+# MAGIC -- ALL_NOTEBOOKS
+# MAGIC SELECT * FROM broken_readings
 
 # COMMAND ----------
 
@@ -105,6 +127,6 @@ SELECT * FROM broken_readings
 
 # COMMAND ----------
 
-%sql
-
-SELECT SUM(`count(heartrate)`) FROM broken_readings
+# MAGIC %sql
+# MAGIC -- ALL_NOTEBOOKS
+# MAGIC SELECT SUM(`count(heartrate)`) FROM broken_readings

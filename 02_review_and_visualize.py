@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC
-# MAGIC # Reviewing and loading data
+# MAGIC # Reviewing and Visualizing data
 # MAGIC Review health tracker data
 # MAGIC One common use case for working with Delta Lake is to collect and process Internet of Things (IoT) Data.
 # MAGIC Here, we provide a mock IoT sensor dataset for demonstration purposes.
@@ -9,13 +9,30 @@
 
 # COMMAND ----------
 
-# MAGIC %md
+# MAGIC %md ## Notebook Configuration
 # MAGIC
-# MAGIC ![Transactions](./includes/images/01_big_pic_02-sst.jpeg)
+# MAGIC Before you run this cell, make sure to add a unique user name to the file
+# MAGIC `includes/configuration`, e.g.
+# MAGIC
+# MAGIC ```
+# MAGIC username = "yourfirstname_yourlastname"
+# MAGIC ```
+# MAGIC
 
 # COMMAND ----------
 
-# MAGIC %md
+# MAGIC %run ./includes/configuration
+
+# COMMAND ----------
+
+# MAGIC %md ## Transactions
+# MAGIC In this notebook, we will focus on the **transactions** piece of the pipeline.
+# MAGIC
+# MAGIC <img
+# MAGIC      alt="Transactions"
+# MAGIC      src=https://files.training.databricks.com/images/delta-lake-hands-on/01_big_pic_02-sst.jpeg
+# MAGIC      width=600px
+# MAGIC >
 # MAGIC
 # MAGIC In a typical system, high flux event data will be delivered to the system
 # MAGIC via a stream processing server like Apache Kafka. For educational purposes,
@@ -36,7 +53,8 @@
 
 # MAGIC %md
 # MAGIC
-# MAGIC Health tracker data sample
+# MAGIC ### Health tracker data sample
+# MAGIC
 # MAGIC ```
 # MAGIC {"device_id":0,"heartrate":52.8139067501,"name":"Deborah Powell","time":1.5778368E9}
 # MAGIC {"device_id":0,"heartrate":53.9078900098,"name":"Deborah Powell","time":1.5778404E9}
@@ -53,48 +71,22 @@
 # MAGIC
 # MAGIC ### Health tracker data schema
 # MAGIC The data has the following schema:
+# MAGIC
+# MAGIC ```
 # MAGIC name: string
 # MAGIC heartrate: double
 # MAGIC device_id: long
 # MAGIC time: long
+# MAGIC ```
 # MAGIC
-# MAGIC Below is this cell and output executed in a Databricks notebook.
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC
-# MAGIC Step 2: Verify the downloads
-# MAGIC Use an ls command to the driver to view the files that have been downloaded.
-# MAGIC You should see three json files.
-
-# COMMAND ----------
-
-
-%sh ls
-
-# COMMAND ----------
-DO WE NEED THIS?
-# MAGIC %md
-# MAGIC
-# MAGIC Step 3: Move the data to the raw directory
-# MAGIC Move the data you have downloaded into the raw directory.
-# MAGIC Copy and paste the below into your notebook.
-# MAGIC dbutils.fs.mv("file:/databricks/driver/health_tracker_data_2020_1.json",
-# MAGIC               health_tracker + "raw/health_tracker_data_2020_1.json")
-# MAGIC dbutils.fs.mv("file:/databricks/driver/health_tracker_data_2020_2.json",
-# MAGIC               health_tracker + "raw/health_tracker_data_2020_2.json")
-# MAGIC dbutils.fs.mv("file:/databricks/driver/health_tracker_data_2020_2_late.json",
-# MAGIC               health_tracker + "raw/health_tracker_data_2020_2_late.json")
-# MAGIC dbutils.fs.mv("file:/databricks/driver/health_tracker_data_2020_3.json",
-# MAGIC               health_tracker + "raw/health_tracker_data_2020_3.json")
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC Step 4: Load the Data
-# MAGIC Load the data as a Spark DataFrame from the raw directory. This is done using the .format("json") option.
+# MAGIC ### Load the Data
+# MAGIC Load the data as a Spark DataFrame from the raw directory.
+# MAGIC This is done using the `.format("json")` option.
 
 # COMMAND ----------
 
@@ -112,12 +104,12 @@ health_tracker_data_2020_1_df = (
 # MAGIC %md
 # MAGIC
 # MAGIC ## Visualize Data
-# MAGIC Step 1: Display the Data
+# MAGIC ### Step 1: Display the Data
 # MAGIC Strictly speaking, this is not part of the ETL process, but displaying the data gives us a look at the data that we are working with.
 # MAGIC We note a few phenomena in the data:
-# MAGIC Sensor anomalies - Sensors cannot record negative heart rates, so any negative values in the data are anomalies.
-# MAGIC Wake/Sleep cycle - We notice that users have a consistent wake/sleep cycle alternating between steady high and low heart rates.
-# MAGIC Elevated activity - Some users have irregular periods of high activity.
+# MAGIC - Sensor anomalies - Sensors cannot record negative heart rates, so any negative values in the data are anomalies.
+# MAGIC - Wake/Sleep cycle - We notice that users have a consistent wake/sleep cycle alternating between steady high and low heart rates.
+# MAGIC - Elevated activity - Some users have irregular periods of high activity.
 
 # COMMAND ----------
 
@@ -129,7 +121,7 @@ display(health_tracker_data_2020_1_df)
 # MAGIC %md
 # MAGIC
 # MAGIC ### Configuring the Visualization
-# MAGIC Note that we have used a Databricks visualization to visualize the sensor data over time. We have used the following options to configure the visualization:
+# MAGIC Create a Databricks visualization to visualize the sensor data over time. We have used the following options to configure the visualization:
 # MAGIC ```
 # MAGIC Keys: time
 # MAGIC Series groupings: device_id
@@ -142,8 +134,9 @@ display(health_tracker_data_2020_1_df)
 
 # MAGIC %md
 # MAGIC
-# MAGIC Step 2: Configure the Visualization
-# MAGIC Note that we have used a Databricks visualization to visualize the sensor data over time. We have used the following plot options to configure the visualization:
+# MAGIC ### Step 2: Configure the Visualization
+# MAGIC Create a Databricks visualization to visualize the sensor data over time.
+# MAGIC We have used the following plot options to configure the visualization:
 # MAGIC ```
 # MAGIC Keys: time
 # MAGIC Series groupings: device_id
@@ -158,7 +151,7 @@ display(health_tracker_data_2020_1_df)
 
 # MAGIC %md
 # MAGIC
-# MAGIC ### Create a Parquet Table
+# MAGIC ## Create a Parquet Table
 # MAGIC Now that we have used Databricks to preview the data, we'll work through the process of creating a Parquet-based data lake table. This table will be used in the next lesson to show the ease of converting existing Parquet-based tables to Delta tables.
 # MAGIC The development pattern used to create a Parquet-based data lake table is similar to that used in creating a Delta table. There are a few issues that arise as part of the process, however. In particular, working with Parquet-based tables often requires table repairs to work with them.
 # MAGIC In subsequent lessons, we'll see that creating a Delta table does not have the same issues.
@@ -167,15 +160,22 @@ display(health_tracker_data_2020_1_df)
 
 # MAGIC %md
 # MAGIC
-# MAGIC _NOTE_
-# MAGIC Throughout this lesson, we'll be writing files to the root location of the Databricks File System (DBFS). In general, best practice is to write files to your cloud object storage. We use DBFS root here for demonstration purposes.
-# MAGIC #### Step 1: Remove files in the /dbacademy/DLRS/healthtracker/processed directory
-# MAGIC Next, we remove the files in the /dbacademy/DLRS/healthtracker/processed directory.
+# MAGIC #### Step 1: Make Idempotent
+# MAGIC First, we remove the files in the `healthtracker/processed` directory.
+# MAGIC
+# MAGIC Then, we drop the table we will create from the Metastore if it exists.
+# MAGIC
 # MAGIC This step will make the notebook idempotent. In other words, it could be run more than once without throwing errors or introducing extra files.
+# MAGIC
+# MAGIC 🚨 **NOTE** Throughout this lesson, we'll be writing files to the root location of the Databricks File System (DBFS). In general, best practice is to write files to your cloud object storage. We use DBFS root here for demonstration purposes.
 
 # COMMAND ----------
 
 dbutils.fs.rm(health_tracker + "processed", recurse=True)
+
+spark.sql(f"""
+DROP TABLE IF EXISTS health_tracker_processed
+""")
 
 # COMMAND ----------
 
@@ -183,10 +183,10 @@ dbutils.fs.rm(health_tracker + "processed", recurse=True)
 # MAGIC
 # MAGIC #### Step 2: Transform the Data
 # MAGIC We perform data engineering on the data with the following transformations:
-# MAGIC Use the from_unixtime Spark SQL function to transform the unixtime into a time string
-# MAGIC Cast the time column to type timestamp to replace the column time
-# MAGIC Cast the time column to type date to create the column dte
-# MAGIC Select the columns in the order in which we would like them to be written
+# MAGIC - Use the `from_unixtime` Spark SQL function to transform the unixtime into a time string
+# MAGIC - Cast the time column to type `timestamp` to replace the column `time`
+# MAGIC - Cast the time column to type `date` to create the column `dte`
+# MAGIC - Select the columns in the order in which we would like them to be written
 
 # COMMAND ----------
 
@@ -214,18 +214,11 @@ processedDF = process_health_tracker_data(health_tracker_data_2020_1_df)
 
 # COMMAND ----------
 
-
 (processedDF.write
  .mode("overwrite")
  .format("parquet")
  .partitionBy("p_device_id")
  .save(health_tracker + "processed"))
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC Below is this cell and output executed in a Databricks notebook.
 
 # COMMAND ----------
 
@@ -237,20 +230,15 @@ processedDF = process_health_tracker_data(health_tracker_data_2020_1_df)
 
 # COMMAND ----------
 
+spark.sql(f"""
+DROP TABLE IF EXISTS health_tracker_processed
+""")
 
-%sql
-
-DROP TABLE IF EXISTS health_tracker_processed;
-
+spark.sql(f"""
 CREATE TABLE health_tracker_processed
 USING PARQUET
-LOCATION "/dbacademy/$username/DLRS/healthtracker/processed"
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC Below is this cell and output executed in a Databricks notebook.
+LOCATION "{health_tracker}/processed"
+""")
 
 # COMMAND ----------
 
@@ -265,7 +253,6 @@ LOCATION "/dbacademy/$username/DLRS/healthtracker/processed"
 
 # COMMAND ----------
 
-
 health_tracker_processed = spark.read.table("health_tracker_processed")
 health_tracker_processed.count()
 
@@ -278,9 +265,7 @@ health_tracker_processed.count()
 
 # COMMAND ----------
 
-%sql
-
-MSCK REPAIR TABLE health_tracker_processed
+spark.sql("MSCK REPAIR TABLE health_tracker_processed")
 
 # COMMAND ----------
 

@@ -40,8 +40,16 @@ notebooks:
   - src: 04_batch_write_to_delta_tables.py
   - src: 05_exploring_the_ssot.py
   - src: 06_upsert_into_a_delta_table.py
-  - src: 07_delete_a_users_records.py
-  - src: 08_summary_and_next_steps.py
+  - src: 07_schema_enforcement_evolution.py
+  - src: 08_delete_a_users_records.py
+  - src: 09_summary_and_next_steps.py
+  - src: includes/main/python/operations.py
+    dest: $target_lang/$notebook_type/includes/main/python/$basename.$target_extension
+    master:
+      heading:
+        enabled: false
+      footer:
+        enabled: false
   - src: includes/configuration.py
     dest: $target_lang/$notebook_type/includes/$basename.$target_extension
     master:

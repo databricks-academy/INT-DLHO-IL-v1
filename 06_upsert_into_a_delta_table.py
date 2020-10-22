@@ -10,6 +10,26 @@
 
 # COMMAND ----------
 
+# MAGIC %md ## Notebook Configuration
+# MAGIC
+# MAGIC Before you run this cell, make sure to add a unique user name to the file
+# MAGIC `includes/configuration`, e.g.
+# MAGIC
+# MAGIC ```
+# MAGIC username = "yourfirstname_yourlastname"
+# MAGIC ```
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %run ./includes/configuration
+
+# COMMAND ----------
+
+# MAGIC %run ./includes/main/python/operations
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC There are two patterns for modifying existing Delta tables.
@@ -85,7 +105,12 @@ updatesDF = (
 
 # COMMAND ----------
 
-health_tracker_processed.printSchema()
+(
+  spark.read
+  .format("delta")
+  .load(health_tracker + "processed")
+  .printSchema()
+)
 updatesDF.printSchema()
 
 # COMMAND ----------
@@ -114,13 +139,18 @@ updatesDF.count()
 
 # COMMAND ----------
 
-file_path = health_tracker + "raw/health_tracker_data_2020_2_late.json"
+file_path = health_tracker + "raw/late/health_tracker_data_2020_2_late.json"
 
 health_tracker_data_2020_2_late_df = (
   spark.read
   .format("json")
   .load(file_path)
 )
+
+
+# COMMAND ----------
+
+health_tracker_data_2020_2_late_df.count()
 
 # COMMAND ----------
 
@@ -134,7 +164,7 @@ health_tracker_data_2020_2_late_df = (
 
 # COMMAND ----------
 
-insertsDF = process_health_tracker_data(health_tracker_data_2020_2_late_df)
+insertsDF = process_health_tracker_data(spark, health_tracker_data_2020_2_late_df)
 
 # COMMAND ----------
 
@@ -184,7 +214,7 @@ upsertsDF.printSchema()
 
 # COMMAND ----------
 
-
+from delta.tables import DeltaTable
 processedDeltaTable = DeltaTable.forPath(spark, health_tracker + "processed")
 
 update_match = """health_tracker.time = upserts.time
@@ -269,6 +299,22 @@ display(processedDeltaTable.history())
 # MAGIC Let’s sum the records in the broken_readings view once more. Note that there are still broken readings in the table. This is because many of the records inserted as part of the upsert also contained broken readings.
 # MAGIC _NOTE_
 # MAGIC It is not necessary to redefine the view broken_readings. The view is simply a pointer to the query, as opposed to being the actual data, and automatically pulls the latest correct number of broken readings from the data in our health_tracker_processed Delta table.
+
+# COMMAND ----------
+
+from pyspark.sql.functions import col, count
+
+broken_readings = (
+  spark.read
+  .format("delta")
+  .load(health_tracker + "processed")
+  .select(col("heartrate"), col("dte"))
+  .where(col("heartrate") < 0)
+  .groupby("dte")
+  .agg(count("heartrate"))
+  .orderBy("dte")
+)
+broken_readings.createOrReplaceTempView("broken_readings")
 
 # COMMAND ----------
 

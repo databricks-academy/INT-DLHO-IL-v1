@@ -10,6 +10,22 @@
 
 # COMMAND ----------
 
+# MAGIC %md ## Notebook Configuration
+# MAGIC
+# MAGIC Before you run this cell, make sure to add a unique user name to the file
+# MAGIC `includes/configuration`, e.g.
+# MAGIC
+# MAGIC ```
+# MAGIC username = "yourfirstname_yourlastname"
+# MAGIC ```
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %run ./includes/configuration
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC When creating a Delta table, you can do one of the following:
@@ -45,10 +61,10 @@
 
 # COMMAND ----------
 
-
-%sql
-
-DESCRIBE DETAIL health_tracker_processed
+# MAGIC %sql
+# MAGIC -- ALL_NOTEBOOKS
+# MAGIC
+# MAGIC DESCRIBE DETAIL health_tracker_processed
 
 # COMMAND ----------
 
@@ -60,7 +76,12 @@ DESCRIBE DETAIL health_tracker_processed
 # MAGIC Next, we will convert the Parquet-based data lake table we created previously into a Delta table.
 # MAGIC In doing so, we are defining the Single Source of Truth at the heart of our EDSS.
 # MAGIC The health_tracker_processed will be the Single Source of Truth.
-# MAGIC ![OLAP](./includes/images/03_delta_tables-01_olap.jpeg)
+# MAGIC
+# MAGIC <img
+# MAGIC      alt="OLAP"
+# MAGIC      src=https://files.training.databricks.com/images/delta-lake-hands-on/03_delta_tables-01_olap.jpeg
+# MAGIC      width=600px
+# MAGIC >
 
 # COMMAND ----------
 
@@ -92,13 +113,15 @@ DeltaTable.convertToDelta(spark, parquet_table, partitioning_scheme)
 
 # COMMAND ----------
 
-%sql
+spark.sql(f"""
+DROP TABLE IF EXISTS health_tracker_processed
+""")
 
-DROP TABLE IF EXISTS health_tracker_processed;
-
+spark.sql(f"""
 CREATE TABLE health_tracker_processed
 USING DELTA
-LOCATION "/dbacademy/$username/DLRS/healthtracker/processed"
+LOCATION "{health_tracker}/processed"
+""")
 
 # COMMAND ----------
 
@@ -109,9 +132,10 @@ LOCATION "/dbacademy/$username/DLRS/healthtracker/processed"
 
 # COMMAND ----------
 
-%sql
-
-DESCRIBE DETAIL health_tracker_processed
+# MAGIC %sql
+# MAGIC -- ALL_NOTEBOOKS
+# MAGIC
+# MAGIC DESCRIBE DETAIL health_tracker_processed
 
 
 # COMMAND ----------
@@ -217,7 +241,7 @@ display(spark.read.table("health_tracker_gold_user_analytics"))
 # MAGIC %md
 # MAGIC
 # MAGIC ### Configuring the Visualization
-# MAGIC Note that we have used a Databricks visualization to view the aggregate sensor data.
+# MAGIC Create a Databricks visualization to view the aggregate sensor data.
 # MAGIC We have used the following options to configure the visualization:
 # MAGIC ```
 # MAGIC Keys: p_device_id
