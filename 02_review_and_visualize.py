@@ -194,26 +194,48 @@ DROP TABLE IF EXISTS health_tracker_processed
 # MAGIC %md
 # MAGIC
 # MAGIC #### Step 2: Transform the Data
-# MAGIC We perform data engineering on the data with the following transformations:
-# MAGIC - Use the `from_unixtime` Spark SQL function to transform the unixtime into a time string
-# MAGIC - Cast the time column to type `timestamp` to replace the column `time`
-# MAGIC - Cast the time column to type `date` to create the column `dte`
-# MAGIC - Select the columns in the order in which we would like them to be written
+# MAGIC We perform transformations by selecting columns in the following ways:
+# MAGIC - use `from_unixtime` to transform `"time"`, cast as a `date`, and aliased to `dte`
+# MAGIC - use `from_unixtime` to transform `"time"`, cast as a `timestamp`, and aliased to `dte`
+# MAGIC - 'heartrate' is selected as is
+# MAGIC - 'name' is selected as is
+# MAGIC - cast `"device_id"` as an integer aliased to `p_device_id`
 
 # COMMAND ----------
 
+# TODO
+# from pyspark.sql.functions import col, from_unixtime
+#
+# def process_health_tracker_data(dataframe):
+#   return (
+#     dataframe
+#     .select(
+#         from_unixtime(FILL_THIS_IN).cast(FILL_THIS_IN).alias("dte"),
+#         from_unixtime(FILL_THIS_IN).cast(FILL_THIS_IN).alias("time"),
+#         "heartrate",
+#         "name",
+#         col("device_id").cast(FILL_THIS_IN).alias(FILL_THIS_IN)
+#     )
+#   )
+#
+# processedDF = process_health_tracker_data(health_tracker_data_2020_1_df)
+
+# COMMAND ----------
+
+# ANSWER
 from pyspark.sql.functions import col, from_unixtime
 
 def process_health_tracker_data(dataframe):
   return (
     dataframe
-    .withColumn("time", from_unixtime("time"))
-    .withColumnRenamed("device_id", "p_device_id")
-    .withColumn("time", col("time").cast("timestamp"))
-    .withColumn("dte", col("time").cast("date"))
-    .withColumn("p_device_id", col("p_device_id").cast("integer"))
-    .select("dte", "time", "heartrate", "name", "p_device_id")
+    .select(
+        from_unixtime("time").cast("date").alias("dte"),
+        from_unixtime("time").cast("timestamp").alias("time"),
+        "heartrate",
+        "name",
+        col("device_id").cast("integer").alias("p_device_id")
     )
+  )
 
 processedDF = process_health_tracker_data(health_tracker_data_2020_1_df)
 
@@ -223,9 +245,21 @@ processedDF = process_health_tracker_data(health_tracker_data_2020_1_df)
 # MAGIC
 # MAGIC #### Step 3: Write the Files to the processed directory
 # MAGIC Note that we are partitioning the data by device id.
+# MAGIC
+# MAGIC 1. use `.format("parquet")`
+# MAGIC 1. pattition by `"p_device_id"`
 
 # COMMAND ----------
 
+# TODO
+# (processedDF.write
+#  .mode("overwrite")
+#  FILL_THIS_IN
+#  .save(health_tracker + "processed"))
+
+# COMMAND ----------
+
+# ANSWER
 (processedDF.write
  .mode("overwrite")
  .format("parquet")
@@ -257,14 +291,24 @@ LOCATION "{health_tracker}/processed"
 # MAGIC %md
 # MAGIC
 # MAGIC #### Step 5: Verify and Repair the Parquet-based Data Lake table
-# MAGIC #### Step 5a: Count the Records in the health_tracker_processed Table
+# MAGIC #### Step 5a: Count the Records in the `health_tracker_processed` Table
+# MAGIC
 # MAGIC Per best practice, we have created a partitioned table.
+# MAGIC
 # MAGIC However, if you create a partitioned table from existing data,
 # MAGIC Spark SQL does not automatically discover the partitions and register them in the Metastore.
+# MAGIC
 # MAGIC Note that the count does not return results.
 
 # COMMAND ----------
 
+# TODO
+# health_tracker_processed = spark.read.table("health_tracker_processed")
+# FILL_THIS_IN
+
+# COMMAND ----------
+
+# ANSWER
 health_tracker_processed = spark.read.table("health_tracker_processed")
 health_tracker_processed.count()
 
@@ -284,10 +328,18 @@ spark.sql("MSCK REPAIR TABLE health_tracker_processed")
 # MAGIC %md
 # MAGIC
 # MAGIC #### Step 5c: Count the Records in the health_tracker_processed Table
-# MAGIC Count the records in the health_tracker_processed table.
+# MAGIC
+# MAGIC Count the records in the `health_tracker_processed` table.
+# MAGIC
 # MAGIC With the table repaired and the partitions registered, we now have results.
 # MAGIC We expect there to be 3720 records: five device measurements, 24 hours a day for 31 days.
 
 # COMMAND ----------
 
+# TODO
+# FILL_THIS_IN
+
+# COMMAND ----------
+
+# ANSWER
 health_tracker_processed.count()
