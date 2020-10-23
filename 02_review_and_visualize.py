@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC
 # MAGIC # Reviewing and Visualizing data
-# MAGIC Review health tracker data
+# MAGIC ##Review health tracker data
 # MAGIC One common use case for working with Delta Lake is to collect and process Internet of Things (IoT) Data.
 # MAGIC Here, we provide a mock IoT sensor dataset for demonstration purposes.
 # MAGIC The data simulates heart rate data measured by a health tracker device.
@@ -86,11 +86,23 @@
 # MAGIC
 # MAGIC ### Load the Data
 # MAGIC Load the data as a Spark DataFrame from the raw directory.
-# MAGIC This is done using the `.format("json")` option.
+# MAGIC This is done using the `.format("json")` option,
+# MAGIC as well as a path to the `.load()` method.
 
 # COMMAND ----------
 
 
+# TODO
+# file_path = health_tracker + "raw/health_tracker_data_2020_1.json"
+#
+# health_tracker_data_2020_1_df = (
+#   spark.read
+# FILL_THIS_IN
+# )
+
+# COMMAND ----------
+
+# ANSWER
 file_path = health_tracker + "raw/health_tracker_data_2020_1.json"
 
 health_tracker_data_2020_1_df = (
