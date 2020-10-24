@@ -28,10 +28,28 @@
 # MAGIC
 # MAGIC #### Step 1: Count the Number of Records Per Device
 # MAGIC Let’s run a query to count the number of records per device.
+# MAGIC Recall that we will need to tell Spark that our format is a Delta table,
+# MAGIC which we can do with our `.format()` method. Additionally, instead of passing in the path
+# MAGIC as we did in previous notebooks, we need to pass in the health tracker variable.
+# MAGIC Finally, we'll do a groupby and aggregation on our `p_device_id` column.
 # MAGIC It looks like device 4 is missing 72 records.
 
 # COMMAND ----------
 
+# TODO
+# from pyspark.sql.functions import count
+#
+# display(
+#   spark.read
+#   .format(FILL_THIS_IN)
+#   .load(FILL_THIS_IN + "processed")
+#   .groupby("p_device_id")
+#   .agg(count("*"))
+# )
+
+# COMMAND ----------
+
+# ANSWER
 from pyspark.sql.functions import count
 
 display(
@@ -89,9 +107,26 @@ display(
 # MAGIC
 # MAGIC #### Step 1: Create Temporary View for Broken Readings
 # MAGIC First, we create a temporary view for the Broken Readings in the health_tracker_processed table.
+# MAGIC Here, we want to find the columns where `heartrate` is less than 0.
 
 # COMMAND ----------
 
+# TODO
+# broken_readings = (
+#   spark.read
+#   .format("delta")
+#   .load(health_tracker + "processed")
+#   .select(col("heartrate"), col("dte"))
+#   .where(FILL_THIS_IN < 0)
+#   .groupby("dte")
+#   .agg(count("heartrate"))
+#   .orderBy("dte")
+# )
+# broken_readings.createOrReplaceTempView("broken_readings")
+
+# COMMAND ----------
+
+# ANSWER
 broken_readings = (
   spark.read
   .format("delta")
