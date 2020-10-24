@@ -79,17 +79,30 @@ health_tracker_data_2020_3_df = (
 # MAGIC - Cast the time column to type date to create the column dte
 
 # COMMAND ----------
+# old code:
+# def process_health_tracker_data(dataframe):
+#   return (
+#     dataframe
+#     .withColumn("time", from_unixtime("time"))
+#     .withColumnRenamed("device_id", "p_device_id")
+#     .withColumn("time", col("time").cast("timestamp"))
+#     .withColumn("dte", col("time").cast("date"))
+#     .withColumn("p_device_id", col("p_device_id").cast("integer"))
+#     .select("dte", "time", "device_type", "heartrate", "name", "p_device_id")
+#     )
+processedDF = process_health_tracker_data(health_tracker_data_2020_3_df)
 
-def process_health_tracker_data(dataframe):
-  return (
-    dataframe
-    .withColumn("time", from_unixtime("time"))
-    .withColumnRenamed("device_id", "p_device_id")
-    .withColumn("time", col("time").cast("timestamp"))
-    .withColumn("dte", col("time").cast("date"))
-    .withColumn("p_device_id", col("p_device_id").cast("integer"))
-    .select("dte", "time", "device_type", "heartrate", "name", "p_device_id")
-    )
+ def process_health_tracker_data(dataframe):
+   return (
+     dataframe
+     .select(
+         from_unixtime("time").cast("date").alias("dte"),
+         from_unixtime("time").cast("timestamp").alias("time"),
+         "heartrate",
+         "name",
+         col("device_id").cast("integer").alias("p_device_id")
+       )
+     )
 processedDF = process_health_tracker_data(health_tracker_data_2020_3_df)
 
 # COMMAND ----------
@@ -116,13 +129,13 @@ except AnalysisException as error:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC 
+# MAGIC
 # MAGIC ## Schema Mismatch
 # MAGIC When we try to run this command, we receive the error shown below because there is a mismatch between the table and data schemas.
 # MAGIC `AnalysisException: A schema mismatch detected when writing to the Delta table (Table ID: ...).`
-# MAGIC 
+# MAGIC
 # MAGIC To enable schema migration using DataFrameWriter or DataStreamWriter, please set: '.option("mergeSchema", "true")'.
-# MAGIC 
+# MAGIC
 # MAGIC For other operations, set the session configuration spark.databricks.delta.schema.autoMerge.enabled to "true". See the documentation specific to the operation for details.
 
 
@@ -142,6 +155,17 @@ except AnalysisException as error:
 
 # COMMAND ----------
 
+# TODO
+# (processedDF.write
+#  .mode(FILL_THIS_IN)
+#  .option("mergeSchema", True)
+#  .format("delta")
+#  .save(health_tracker + "processed"))
+#
+
+# COMMAND ----------
+
+# ANSWER
 (processedDF.write
  .mode("append")
  .option("mergeSchema", True)
