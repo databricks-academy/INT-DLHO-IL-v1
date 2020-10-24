@@ -56,9 +56,32 @@
 
 # MAGIC %md
 # MAGIC #### Step 1: Create a DataFrame Interpolating Broken Values
+# MAGIC Recall that we want to partition on our Device ID column, which we named:
+# MAGIC `"p_device_id"`
 
 # COMMAND ----------
 
+# TODO
+# from pyspark.sql.window import Window
+# from pyspark.sql.functions import col, lag, lead
+#
+# dteWindow = Window.partitionBy(FILL_THIS_IN).orderBy("dte")
+#
+# interpolatedDF = (
+#    spark.read
+#    .table("health_tracker_processed")
+#    .select(col("dte"),
+#            col("time"),
+#            col("heartrate"),
+#            lag(col("heartrate")).over(dteWindow).alias("prev_amt"),
+#            lead(col("heartrate")).over(dteWindow).alias("next_amt"),
+#            col("name"),
+#            col("p_device_id"))
+#  )
+
+# COMMAND ----------
+
+# ANSWER
 from pyspark.sql.window import Window
 from pyspark.sql.functions import col, lag, lead
 
@@ -102,9 +125,22 @@ updatesDF = (
 # MAGIC
 # MAGIC #### Step 3: View the Schemas of the updatesDF and health_tracker_processed table
 # MAGIC We use the .printSchema() function to view the schema of the health_tracker_processed table.
+# MAGIC Which format would we read in?
 
 # COMMAND ----------
 
+# TODO
+# (
+#   spark.read
+#   .format(FILL_THIS_IN)
+#   .load(health_tracker + "processed")
+#   .printSchema()
+# )
+# updatesDF.printSchema()
+
+# COMMAND ----------
+
+# ANSWER
 (
   spark.read
   .format("delta")
@@ -150,6 +186,13 @@ health_tracker_data_2020_2_late_df = (
 
 # COMMAND ----------
 
+# TODO
+# How would we count the number of records?
+# health_tracker_data_2020_2_late_df.FILL_THIS_IN()
+
+# COMMAND ----------
+
+# ANSWER
 health_tracker_data_2020_2_late_df.count()
 
 # COMMAND ----------
@@ -296,12 +339,37 @@ display(processedDeltaTable.history())
 
 # MAGIC %md
 # MAGIC #### Step 1: Sum the Broken Readings
-# MAGIC Let’s sum the records in the broken_readings view once more. Note that there are still broken readings in the table. This is because many of the records inserted as part of the upsert also contained broken readings.
-# MAGIC _NOTE_
-# MAGIC It is not necessary to redefine the view broken_readings. The view is simply a pointer to the query, as opposed to being the actual data, and automatically pulls the latest correct number of broken readings from the data in our health_tracker_processed Delta table.
+# MAGIC Let’s sum the records in the broken_readings view once more.
+# MAGIC Note that there are still broken readings in the table.
+# MAGIC This is because many of the records inserted as part of the upsert also contained broken readings.
+# MAGIC We can perform a filter operation to isolate our `heartrate` values < 0, similar to before, with a `.where()` statement
+# MAGIC as well as a `.groupby()` to group all of our records by the `"dte"` column.
+# MAGIC 🧐 _NOTE_
+# MAGIC It is not necessary to redefine the view broken_readings.
+# MAGIC The view is simply a pointer to the query, as opposed to being the actual data,
+# MAGIC and automatically pulls the latest correct number of broken readings from the data
+# MAGIC in our health_tracker_processed Delta table.
 
 # COMMAND ----------
 
+# TODO
+# from pyspark.sql.functions import col, count
+#
+# broken_readings = (
+#   spark.read
+#   .format("delta")
+#   .load(health_tracker + "processed")
+#   .select(col("heartrate"), col("dte"))
+#   FILL_THIS_IN
+#   FILL_THIS_IN
+#   .agg(count("heartrate"))
+#   .orderBy("dte")
+# )
+# broken_readings.createOrReplaceTempView("broken_readings")
+
+# COMMAND ----------
+
+# ANSWER
 from pyspark.sql.functions import col, count
 
 broken_readings = (
@@ -346,6 +414,12 @@ SELECT SUM(`count(heartrate)`) FROM broken_readings WHERE dte < '2020-02-25'
 
 # COMMAND ----------
 
+# TODO
+# updatesDF.FILL_THIS_IN()
+
+# COMMAND ----------
+
+# ANSWER
 updatesDF.count()
 
 # COMMAND ----------
