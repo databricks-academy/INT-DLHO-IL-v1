@@ -53,9 +53,27 @@ processedDeltaTable.delete("p_device_id = 4")
 # MAGIC #### Step 1: Prepare New upserts View
 # MAGIC We prepare a view for upserting using Time Travel to recover the missing records.
 # MAGIC Note that we have replaced the entire name column with the value NULL.
+# MAGIC Complete the `.where()` to grab just `p_device_id` records that are equal to 4.
 
 # COMMAND ----------
 
+# TODO
+# from pyspark.sql.functions import lit
+#
+# upsertsDF = (
+#   spark.read
+#   .option("versionAsOf", 3)
+#   .format("delta")
+#   .load(health_tracker + "processed")
+#   .where(FILL_THIS_IN)
+#   .select("dte", "time", "device_type",
+#           "heartrate", lit(None).alias("name"), "p_device_id")
+# )
+#
+
+# COMMAND ----------
+
+# ANSWER
 from pyspark.sql.functions import lit
 
 upsertsDF = (
