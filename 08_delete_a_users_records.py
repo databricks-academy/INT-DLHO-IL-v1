@@ -42,7 +42,10 @@ processedDeltaTable.delete("p_device_id = 4")
 # MAGIC %md
 # MAGIC
 # MAGIC ## Recover the Lost Data
-# MAGIC In the previous lesson, we deleted all records from the health_tracker_processed table for the health tracker device with id, 4. Suppose that the user did not wish to remove all of their data, but merely to have their name scrubbed from the system. In this lesson, we use the Time Travel capability of Delta Lake to recover everything but the user’s name.
+# MAGIC In the previous lesson, we deleted all records from the health_tracker_processed table
+# MAGIC for the health tracker device with id, 4. Suppose that the user did not wish to remove all of their data,
+# MAGIC but merely to have their name scrubbed from the system. In this lesson,
+# MAGIC we use the Time Travel capability of Delta Lake to recover everything but the user’s name.
 
 # COMMAND ----------
 
@@ -72,9 +75,38 @@ upsertsDF = (
 # MAGIC #### Step 2: Perform Upsert Into the health_tracker_processed Table
 # MAGIC Once more, we upsert into the health_tracker_processed Table using the DeltaTable command .merge().
 # MAGIC Note that it is necessary to define 1) the reference to the Delta table and 2) the insert logic because the schema has changed.
+# MAGIC Our keys will be our original column names and our values will be
+# MAGIC `"upserts+columnName"`
 
 # COMMAND ----------
 
+# TODO
+# processedDeltaTable = DeltaTable.forPath(spark, health_tracker + "processed")
+#
+# update_match = """health_tracker.time = upserts.time
+#                   AND
+#                   health_tracker.p_device_id = upserts.p_device_id"""
+# update = {"heartrate" : "upserts.heartrate"}
+#
+# insert = {
+#       "p_device_id" : "upserts.p_device_id",
+#       "heartrate" : "upserts.heartrate",
+#       "FILL_THIS_IN" : "upserts.name",
+#       "FILL_THIS_IN" : "upserts.time",
+#       "FILL_THIS_IN" : "upserts.dte",
+#       "device_type" : "upserts.device_type"
+# }
+#
+# (processedDeltaTable.alias("health_tracker")
+#  .merge(upsertsDF.alias("upserts"), update_match)
+#  .whenMatchedUpdate(set=update)
+#  .whenNotMatchedInsert(values=insert)
+#  .execute())
+#
+
+# COMMAND ----------
+
+# ANSWER
 processedDeltaTable = DeltaTable.forPath(spark, health_tracker + "processed")
 
 update_match = """health_tracker.time = upserts.time
