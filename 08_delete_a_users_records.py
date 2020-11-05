@@ -66,7 +66,7 @@ processedDeltaTable.delete("p_device_id = 4")
 #   .format("delta")
 #   .load(health_tracker + "processed")
 #   .where(FILL_THIS_IN)
-#   .select("dte", "time", "device_type",
+#   .select("dte", "time",
 #           "heartrate", lit(None).alias("name"), "p_device_id")
 # )
 #
@@ -82,7 +82,7 @@ upsertsDF = (
   .format("delta")
   .load(health_tracker + "processed")
   .where("p_device_id = 4")
-  .select("dte", "time", "device_type",
+  .select("dte", "time",
           "heartrate", lit(None).alias("name"), "p_device_id")
 )
 
@@ -111,8 +111,7 @@ upsertsDF = (
 #       "heartrate" : "upserts.heartrate",
 #       "FILL_THIS_IN" : "upserts.name",
 #       "FILL_THIS_IN" : "upserts.time",
-#       "FILL_THIS_IN" : "upserts.dte",
-#       "device_type" : "upserts.device_type"
+#       "FILL_THIS_IN" : "upserts.dte"
 # }
 #
 # (processedDeltaTable.alias("health_tracker")
@@ -137,8 +136,7 @@ insert = {
       "heartrate" : "upserts.heartrate",
       "name" : "upserts.name",
       "time" : "upserts.time",
-      "dte" : "upserts.dte",
-      "device_type" : "upserts.device_type"
+      "dte" : "upserts.dte"
 }
 
 (processedDeltaTable.alias("health_tracker")
@@ -225,6 +223,7 @@ except IllegalArgumentException as error:
 # MAGIC ## Delta Table Retention Period
 # MAGIC When we run this command, we receive the below error. The default threshold is in place
 # MAGIC to prevent corruption of the Delta table.
+# MAGIC ```
 # MAGIC IllegalArgumentException: requirement failed: Are you sure you would like
 # MAGIC to vacuum files with such a low retention period?
 # MAGIC If you have writers that are currently writing to this table, there is a risk
@@ -233,6 +232,7 @@ except IllegalArgumentException as error:
 # MAGIC If you are certain that there are no operations being performed on this table, such as insert/upsert/delete/optimize, then you may turn off this check by setting: spark.databricks.delta.retentionDurationCheck.enabled = false
 # MAGIC
 # MAGIC If you are not sure, please use a value not less than "168 hours".
+# MAGIC ```
 
 # COMMAND ----------
 

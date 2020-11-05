@@ -320,7 +320,7 @@ health_tracker_processed.count()
 # MAGIC To register the partitions, run the following to generate the partitions:
 
 # COMMAND ----------
-
+# per venkat - this might be 
 spark.sql("MSCK REPAIR TABLE health_tracker_processed")
 
 # COMMAND ----------

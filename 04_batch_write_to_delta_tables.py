@@ -73,7 +73,7 @@ processedDF = process_health_tracker_data(spark, health_tracker_data_2020_2_df)
 
 # MAGIC %md
 # MAGIC
-# MAGIC View the Commit Using Time Travel
+# MAGIC ### View the Commit Using Time Travel
 # MAGIC Delta Lake can query an earlier version of a Delta table using a feature known as time travel. Here, we query the data as of version 0, that is, the initial conversion of the table from Parquet.
 
 # COMMAND ----------

@@ -234,7 +234,7 @@ LOCATION "/dbacademy/$username/DLRS/healthtracker/gold/health_tracker_user_analy
 
 # COMMAND ----------
 
-display(spark.read.table("health_tracker_gold_user_analytics"))
+display(health_tracker_gold_user_analytics)
 
 # COMMAND ----------
 

@@ -79,21 +79,9 @@ health_tracker_data_2020_3_df = (
 # MAGIC - Cast the time column to type date to create the column dte
 
 # COMMAND ----------
-# old code:
-# def process_health_tracker_data(dataframe):
-#   return (
-#     dataframe
-#     .withColumn("time", from_unixtime("time"))
-#     .withColumnRenamed("device_id", "p_device_id")
-#     .withColumn("time", col("time").cast("timestamp"))
-#     .withColumn("dte", col("time").cast("date"))
-#     .withColumn("p_device_id", col("p_device_id").cast("integer"))
-#     .select("dte", "time", "device_type", "heartrate", "name", "p_device_id")
-#     )
-processedDF = process_health_tracker_data(health_tracker_data_2020_3_df)
-
- def process_health_tracker_data(dataframe):
-   return (
+from pyspark.sql.functions import col, from_unixtime
+def process_health_tracker_data(dataframe):
+    return (
      dataframe
      .select(
          from_unixtime("time").cast("date").alias("dte"),
@@ -177,8 +165,7 @@ except AnalysisException as error:
 
 # MAGIC %md ## Verify the Commit
 # MAGIC ### Step 1: Count the Most Recent Version
-# MAGIC When we look at the current version, we expect to see three months of data, five device measurements, 24 hours a day for (31 + 29 + 31) days, or 10920 records. Note that the range of data includes the month of February during a leap year. That is why there are 29 days in the month.
 
 # COMMAND ----------
 
-health_tracker_processed.count()
+spark.read.table("health_tracker_processed").count()

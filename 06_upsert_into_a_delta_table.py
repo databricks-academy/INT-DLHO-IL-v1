@@ -4,8 +4,8 @@
 # MAGIC # Upsert Into a Delta Table
 # MAGIC Repair Records with an Upsert
 # MAGIC In the previous lesson, we identified two issues with the health_tracker_processed table:
-# MAGIC There were 95 missing records
-# MAGIC There were 67 records with broken readings
+# MAGIC - There were 95 missing records
+# MAGIC - There were 67 records with broken readings
 # MAGIC In this lesson, we will repair the table by modifying the health_tracker_processed table.
 
 # COMMAND ----------
@@ -36,6 +36,11 @@
 # MAGIC appending files to an existing directory of Delta files
 # MAGIC merging a set of updates and insertions
 # MAGIC In this lesson, we explore the second.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
 # MAGIC The word "upsert" is a portmanteau of the words "update" and "insert," and this is what it does.
 # MAGIC An upsert will update records where some criteria are met and otherwise will insert the record.
 # MAGIC When upserting into an existing Delta table, use Spark SQL to perform the merge from another registered table or view.
@@ -311,7 +316,7 @@ insert = {
 
 # COMMAND ----------
 
-health_tracker_processed.count()
+spark.read.table("health_tracker_processed").count()
 
 # COMMAND ----------
 
